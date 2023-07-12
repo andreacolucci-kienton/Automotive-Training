@@ -1,11 +1,11 @@
 function spostamento_risorse_excel() {
-  var foglioAttivo = SpreadsheetApp.getActive().getSheetByName("prova");
+  var foglioAttivo = SpreadsheetApp.getActive().getSheetByName("Overview");
   var foglioAssegnazioni = SpreadsheetApp.getActive().getSheetByName("Foglio29");
   var assegnazioni = foglioAssegnazioni.getDataRange().getValues();
+  var managers = foglioAssegnazioni.getRange(2, 1, foglioAssegnazioni.getLastRow()-1, 1).getValues().toString()
   var colonnaManager = 0;
   var colonnaRis = 1;
-
-  for (var rigaAssegn = 1; rigaAssegn < assegnazioni.length; rigaAssegn++) {
+  for (var rigaAssegn = 1; rigaAssegn < assegnazioni.length; rigaAssegn++){
     nome_ris = assegnazioni[rigaAssegn][colonnaRis];
     nome_nuovo_manager = assegnazioni[rigaAssegn][colonnaManager];
     var datiCelle = foglioAttivo.getDataRange().getValues();
@@ -26,13 +26,14 @@ function spostamento_risorse_excel() {
         }
       }
     }
+    var col2 = 0;
     for (var riga = 0; riga < datiCelle.length; riga++) {
-      for (var col2 = 0; col2 < datiCelle[riga].length; col2++) {
+      while(col2 < datiCelle[riga].length){
         var valoreCella = datiCelle[riga][col2];
         if (valoreCella === nome_nuovo_manager) {
           var datiCelle = foglioAttivo.getRange(1, col2 + 1, foglioAttivo.getLastRow(), 1).getValues();
           var u_rig = datiCelle.filter(String).length;
-          if (col != col2) {
+          if (col != col2 && !(managers.includes(nome_ris))) {
             foglioAttivo.getRange(u_rig + 1, col2 + 1, 1, 1).setValue(nome_ris);
             foglioAttivo.getRange(u_rig + 1, col2 + 2, 1, 1).setFormula(num_lesson);
             foglioAttivo.getRange(u_rig + 1, col2 + 3, 1, 1).setFormula(num_less_received);
@@ -53,12 +54,15 @@ function spostamento_risorse_excel() {
             example.copyTo(foglioAttivo.getRange(u_rig + 1, col2 + 5, 1, 1), { formatOnly: true });
             example.copyTo(foglioAttivo.getRange(u_rig + 1, col2 + 6, 1, 1), { formatOnly: true });
             foglioAttivo.getRange(rig + 1, col + 1, 1, 6).clearContent();
-            foglioAttivo.getRange(rig + 2, col + 1, foglioAttivo.getLastRow(), 6).moveTo(foglioAttivo.getRange(rig + 1,col + 1));
+            foglioAttivo.getRange(rig + 2, col + 1, foglioAttivo.getLastRow(), 6).moveTo(foglioAttivo.getRange(rig + 1, col + 1));
+            Logger.log("Moved! " + nome_ris)
             break
           } else {
-              Logger.log("Already present!");
+            Logger.log("Already present or manager! " + nome_ris);
+            break
           }
         }
+        col2 = col2 + 1;
       }
     }
   }
